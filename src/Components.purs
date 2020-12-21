@@ -70,8 +70,8 @@ renderRow c =
     ]
   , td_
     [ a 
-      [ href "#/contacts/1"
-        -- safeHref $ Edit "1"
+      [ -- href "#/contacts/1"
+        safeHref $ Edit $ c.id
         -- onClick (Just <<< (GoTo $ Edit "1"))
       ] [text "Editt"]
     ]

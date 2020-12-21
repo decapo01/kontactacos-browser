@@ -5,6 +5,7 @@ import Prelude
 import RouteItems
 
 import Components (contactTableComponent)
+import Comps.Edit as EditComponent
 import Control.Monad.Reader (class MonadAsk, lift)
 import Control.Monad.Trans.Class (lift)
 import Data.Either (hush)
@@ -23,7 +24,6 @@ import Routing.Duplex.Generic.Syntax ((/))
 import Routing.Hash (getHash)
 import Web.Event.Event (preventDefault)
 import Web.UIEvent.MouseEvent (toEvent)
-
 
 data Query a
   = Navigate Route a
@@ -73,7 +73,7 @@ component =
         { route } <- H.get
         when (route /= Just dest) do
           liftEffect $ log $ "in handle query " <> (show dest)
-          H.modify_ \st -> st { route = route }
+          H.modify_ \st -> st { route = Just dest }
         pure (Just a)
 
     handleAction :: Action -> H.HalogenM State Action ChildSlots Void m Unit
@@ -119,7 +119,8 @@ component =
               HH.div_ [HH.text "New Contact"]
             Edit idStr ->
               -- HH.slot (SProxy :: _ "edit") unit contactTableComponent {} absurd
-              HH.div_ [HH.text "Edit Contact"]
+              HH.slot (SProxy :: _ "edit") unit (EditComponent.componentEdit idStr) {} absurd
+              -- HH.div_ [HH.text "Edit Contact"]
         Nothing ->
           HH.div_ [HH.text "Not Found!"]
 
