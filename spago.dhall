@@ -11,6 +11,8 @@ You can edit this file as you like.
   , "halogen"
   , "kontactacos-core"
   , "psci-support"
+  , "routing"
+  , "routing-duplex"
   , "simple-json"
   ]
 , packages = ./packages.dhall

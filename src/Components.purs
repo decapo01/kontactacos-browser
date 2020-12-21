@@ -2,7 +2,6 @@ module Components where
 
 import Contact
 import Halogen
-import Halogen.HTML (HTML, td_, th_, text, table_, thead_, tr_, tbody_)
 import Prelude
 
 import Data.Either (Either(..))
@@ -10,7 +9,13 @@ import Data.Functor as Functor
 import Data.Maybe (Maybe(..))
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
+import Halogen.HTML (HTML, a, span_, table_, tbody_, td_, text, th_, thead_, tr_, span_)
+import Halogen.HTML.Events (onClick)
+import Halogen.HTML.Properties (href)
 import Repo as Repo
+import RouteItems (Action(..), Route(..), safeHref)
+
+
 
 type ContactTableState = { contacts :: Array Contact }
 
@@ -18,9 +23,10 @@ type ContactTableState = { contacts :: Array Contact }
 initialContactTableState :: forall a. a -> ContactTableState
 initialContactTableState _ = { contacts: [] }
 
-data ContactTableAction = NoAction
+data ContactTableAction 
+  = NoAction
 
-contactTableComponent :: forall q i o m. Component HTML q i o Aff
+contactTableComponent :: forall q m. MonadAff m => Component HTML q {} Void m
 contactTableComponent =
   mkComponent
   { initialState: initialContactTableState
@@ -28,7 +34,7 @@ contactTableComponent =
   , eval: mkEval $ defaultEval { handleAction =  handle , initialize = Just NoAction }
   }
   where
-    render :: forall m. ContactTableState -> ComponentHTML ContactTableAction () m
+    render :: ContactTableState -> ComponentHTML ContactTableAction () m
     render state =
       table_ 
       [ thead_
@@ -36,11 +42,13 @@ contactTableComponent =
           [ th_ [text "Name"]
           , th_ [text "Email"]
           , th_ [text "Phone"]
+          , th_ [text "View"]
+          , th_ [text "Edit"]
           ]
         ]
       , tbody_ $ Functor.map renderRow state.contacts 
       ]
-    handle :: forall a. ContactTableAction -> HalogenM ContactTableState ContactTableAction () a Aff Unit
+    handle :: ContactTableAction -> HalogenM ContactTableState ContactTableAction () Void m Unit
     handle =
       case _ of
         NoAction -> do
@@ -57,4 +65,14 @@ renderRow c =
   [ td_ [text c.name]
   , td_ [text c.email]
   , td_ [text c.phone]
+  , td_
+    [ a [safeHref New ] [text "View"]
+    ]
+  , td_
+    [ a 
+      [ href "#/contacts/1"
+        -- safeHref $ Edit "1"
+        -- onClick (Just <<< (GoTo $ Edit "1"))
+      ] [text "Editt"]
+    ]
   ]
